@@ -4,8 +4,10 @@ struct ContentView: View {
     var size1: CGFloat = 150
 
     var body: some View {
-        NavigationStack { 
+        NavigationStack {
+            
             VStack {
+                
                 RoundedRectangle(cornerRadius: 15)
                     .fill(LinearGradient(gradient: Gradient(colors: [Color.black.opacity(0.7), Color.indigo.opacity(0.9), Color.cyan]), startPoint: .topLeading, endPoint: .bottomLeading))
                     .ignoresSafeArea().overlay(
@@ -58,6 +60,8 @@ struct ContentView: View {
                                         .padding()).offset(y: -30)
                         })
             }
+          
+           
         }
     }
 }

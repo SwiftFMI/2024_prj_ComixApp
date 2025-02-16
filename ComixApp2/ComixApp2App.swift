@@ -20,9 +20,20 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // ✅ Initialize Firestore
         db = Firestore.firestore()
         
+        // ✅ Create local folder if needed
+        FirebaseStorageManager.shared.createImagesFolder()
+        
+        // ✅ Download all images from Firebase on app launch
+        FirebaseStorageManager.shared.downloadAllImagesFromFirebase()
+        
         print("✅ Firebase Storage and Firestore initialized successfully.")
         
         return true
+    }
+
+    // ✅ Upload images before the app quits
+    func applicationWillTerminate(_ application: UIApplication) {
+        FirebaseStorageManager.shared.uploadAllLocalImages()
     }
 }
 
@@ -36,4 +47,3 @@ struct ComixApp2App: App {
         }
     }
 }
-
