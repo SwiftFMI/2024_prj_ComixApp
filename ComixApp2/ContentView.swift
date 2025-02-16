@@ -11,6 +11,7 @@ struct ContentView: View {
                     .ignoresSafeArea().overlay(
                         
                         VStack{
+                           
                             Text("ComixApp").foregroundColor(.white).font(.custom("COPPERPLATE", size: 50)).offset(y: -45)
                             
                             RoundedRectangle(cornerRadius: 15)

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyCxNy1jzmlWUwSfSA6CkN-IjhgfJX0hyuk</string>
+	<key>GCM_SENDER_ID</key>
+	<string>900532810935</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.ComixApp2</string>
+	<key>PROJECT_ID</key>
+	<string>comics-app-5dbda</string>
+	<key>STORAGE_BUCKET</key>
+	<string>comics-app-5dbda.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:900532810935:ios:77ea5a8154087bdda04932</string>
+</dict>
+</plist>
