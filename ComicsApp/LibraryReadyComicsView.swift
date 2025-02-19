@@ -4,7 +4,6 @@ import PhotosUI
 struct LibraryReadyComicsView: View {
     @State var zavursheni: [String] = []
     @State var creating: Bool = false
-    @State var patern = ComicsPatern(count: 1, originals: [])
     @State var countSnimki = 1
     @State var snimki: [PhotosPickerItem] = []
     @State var selectedImages: [UIImage] = []
@@ -93,12 +92,17 @@ struct LibraryReadyComicsView: View {
                             }
                         }
                     
-                    Text("Избрани снимки: \(snimki.count)").font(.subheadline)
+                    //Text("Избрани снимки: \(snimki.count)").font(.subheadline)
                     
-                    NavigationLink {
-                        EditPatnel()
-                    } label: {
-                        Text("Към редактиране на панела")
+                    if snimki.count == countSnimki {
+                        NavigationLink {
+                            EditPatnel(snimchici: selectedImages, count: countSnimki)
+                        } label: {
+                            Text("Към редактиране на панела")
+                        }.padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                 }
             }

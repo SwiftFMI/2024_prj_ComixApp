@@ -4,15 +4,22 @@ import PhotosUI
 
 struct EditPatnel: View {//patnel=panel :(, greshka v burzaneto
     //@State var patern = ComicsPatern(count: 1, originals: [])
-    @State var countSnimki = 1
-    @State var snimki: [PhotosPickerItem] = []
-    @State var selectedImages: [UIImage] = []
-    @State var layers: [PhotoLayer] = []
-    @State var oformlenie: [[String]] = [
+    var snimchici: [UIImage]
+        var count: Int
+        let patern: ComicsPatern
+    
+    init(snimchici: [UIImage], count: Int) {
+            self.snimchici = snimchici
+            self.count = count
+            self.patern = ComicsPatern(count: count, originals: snimchici)
+        }
+
+    @State var oformlenie: [[String]] =
+        [
         ["По подразбиране"],
         ["Една до друга", "Една под друга"],
         ["Една до друга", "Една под друга", "Една горе и две долу", "Една долу и две горе", "Една вляво и две вдясно", "Една вдясно и две вляво"]
-    ]
+        ]
     
     
     //Kodut za gradientite ot tuk:
@@ -25,7 +32,6 @@ struct EditPatnel: View {//patnel=panel :(, greshka v burzaneto
 
         var body: some View {
             ZStack {
-                //background gradientut
                 MeshGradient(
                     width: 3, height: 3,
                     points: [
@@ -50,19 +56,36 @@ struct EditPatnel: View {//patnel=panel :(, greshka v burzaneto
                     }
                 }
 
+                
+                
                 VStack {
                     Text("Edit Panel")
                         .font(.largeTitle)
                         .foregroundStyle(.white)
                     
                     
-                    if countSnimki == 2 {
-                        //switch case za grid
+                    if !patern.getPhotos.isEmpty {
+                        
+                        
+                        Rectangle()
+                          .fill(.white)
+                          .frame(width: 350, height: 350).overlay(
+                            
+                            Image(uiImage: patern.getPhotos[0])
+                                .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 340, height: 340, alignment: .topLeading)
+                                        .border(.blue)
+                                        .clipped()
+                            )
+                        }
+                        
+                        
                     }
+                    
                     
                     
                 }
             }
         }
-    }
 //navigation spkit view za podobriavane na dizaina? ne, uf

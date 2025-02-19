@@ -31,7 +31,7 @@ struct LibraryStickersView: View {
       }
         ScrollView {
         VStack {
-          ForEach(stikercheta, id: \.self) { imageName in
+            ForEach(stikercheta.reversed(), id: \.self) { imageName in
             let fileManager = FileManager.default
             let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
             let fileURL = documentsDirectory.appendingPathComponent("\(imageName).jpg")
