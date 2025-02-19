@@ -1,6 +1,0 @@
-framework module Pods_ComixApp2 {
-  umbrella header "Pods-ComixApp2-umbrella.h"
-
-  export *
-  module * { export * }
-}
