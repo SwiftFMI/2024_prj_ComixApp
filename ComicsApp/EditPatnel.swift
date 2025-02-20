@@ -3,17 +3,16 @@ import PhotosUI
 import CoreImage
 import CoreImage.CIFilterBuiltins
 
+//Kodut za gradientite ot tuk:
+
+
+  //https://www.youtube.com/watch?v=_lsnGyF2WZg
+
 struct EditPatnel: View {
     var snimchici: [UIImage]
     var count: Int
     let patern: ComicsPatern
     
-    init(snimchici: [UIImage], count: Int) {
-        self.snimchici = snimchici
-        self.count = count
-        self.patern = ComicsPatern(count: count, originals: snimchici)
-    }
-
     @State var oformlenie: [[String]] = [
         ["По подразбиране"],
         ["Една до друга", "Една под друга"],
@@ -29,13 +28,108 @@ struct EditPatnel: View {
     @State private var selectedFilter: CIFilter?
     @State private var filteredImage: UIImage?
 
+    // State to hold the image as a Binding
+    @State private var imageToEdit: Image
+
+    init(snimchici: [UIImage], count: Int) {
+        self.snimchici = snimchici
+        self.count = count
+        self.patern = ComicsPatern(count: count, originals: snimchici)
+        // Initialize imageToEdit with the first image from patern.getPhotos
+        _imageToEdit = State(initialValue: Image(uiImage: snimchici.first ?? UIImage()))
+    }
+
     var body: some View {
         ZStack {
+
+
+                  MeshGradient(
+
+
+                      width: 3, height: 3,
+
+
+                      points: [
+
+
+                          [0.0, 0.0], [appear2 ? 0.5 : 1.0, 0.0], [1.0, 0.0],
+
+
+                          [0.0, 0.5], appear ? [0.1, 0.5] : [0.8, 0.2], [1.0, -0.5],
+
+
+                          [0.0, 1.0], [1.0, appear2 ? 1.5 : 1.0], [1.0, 1.0]
+
+
+                      ],
+
+
+                      colors: [
+
+
+                          appear2 ? .red.opacity(0.5) : .mint.opacity(0.5), appear2 ? .yellow.opacity(0.5) : .cyan.opacity(0.5),
+
+
+                          .orange,
+
+
+                          appear ? .blue.opacity(0.5) : .red.opacity(0.5), appear ? .cyan.opacity(0.5) : .white.opacity(0.5), appear ? .red.opacity(0.5) : .purple.opacity(0.5),
+
+
+                          appear ? .red.opacity(0.5): .cyan.opacity(0.5), appear ? .mint.opacity(0.5) : .blue.opacity(0.5), appear ? .red.opacity(0.5) : .blue.opacity(0.5)
+
+
+                      ]
+
+
+                  )
+
+
+                  .ignoresSafeArea()
+
+
+                  .onAppear {
+
+
+                      withAnimation(.easeInOut(duration: 10).repeatForever(autoreverses: true)) {
+
+
+                          appear.toggle()
+
+
+                      }
+
+
+                      withAnimation(.easeInOut(duration: 15).repeatForever(autoreverses: true)) {
+
+
+                          appear2.toggle()
+
+                      }
+
+
+                  }
             VStack {
-                Text("Edit Panel")
-                    .font(.largeTitle)
-                    .foregroundStyle(.white)
-                
+                HStack{
+                    Text("Edit Panel")
+                        .font(.largeTitle)
+                        .foregroundStyle(.white)
+
+                    NavigationLink {
+                        // Pass the Binding of the image
+                        EditBubbles(image: $imageToEdit)
+                    }
+                    label: {
+                        Image(systemName:"bubble.circle").foregroundColor(.teal).font(.system(size: 20))
+                    }
+                    .padding()
+                    .background(Color.clear)
+                    .border(Color.teal, width: 4)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .padding(20)
+
+                   
+                }
                 if !patern.getPhotos.isEmpty {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(.white.opacity(0.5))
@@ -45,7 +139,7 @@ struct EditPatnel: View {
                                 HStack {
                                     Text("\(selectedFilterName)")
                                     Picker("Филтър", selection: $selectedFilterName) {
-                                        Text("None").tag("None") // Default
+                                        Text("None").tag("None")
                                         Text("Sepia").tag("Sepia")
                                         Text("Monochrome").tag("Monochrome")
                                         Text("Invert").tag("Invert")
@@ -70,7 +164,7 @@ struct EditPatnel: View {
                                     .frame(width: 250)
                                     .onChange(of: selectedFilterName) {
                                         updateFilter(for: $0)
-                                        applyFilterToImage() // Apply filter
+                                        applyFilterToImage()
                                     }
                                 }
                                 
