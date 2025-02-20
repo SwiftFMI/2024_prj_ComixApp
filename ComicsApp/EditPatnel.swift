@@ -25,36 +25,12 @@ struct EditPatnel: View {
     @State var ramkiWidth: Int = 2
     @State var cviat: Color = .white
     
-    @State private var selectedFilterName: String = "Sepia"
-    @State private var selectedFilter: CIFilter = CIFilter.sepiaTone()
+    @State private var selectedFilterName: String = "None"
+    @State private var selectedFilter: CIFilter?
     @State private var filteredImage: UIImage?
 
     var body: some View {
         ZStack {
-            MeshGradient(
-                width: 3, height: 3,
-                points: [
-                    [0.0, 0.0], [appear2 ? 0.5 : 1.0, 0.0], [1.0, 0.0],
-                    [0.0, 0.5], appear ? [0.1, 0.5] : [0.8, 0.2], [1.0, -0.5],
-                    [0.0, 1.0], [1.0, appear2 ? 1.5 : 1.0], [1.0, 1.0]
-                ],
-                colors: [
-                    appear2 ? .red.opacity(0.5) : .mint.opacity(0.5), appear2 ? .yellow.opacity(0.5) : .cyan.opacity(0.5),
-                    .orange,
-                    appear ? .blue.opacity(0.5) : .red.opacity(0.5), appear ? .cyan.opacity(0.5) : .white.opacity(0.5), appear ? .red.opacity(0.5) : .purple.opacity(0.5),
-                    appear ? .red.opacity(0.5): .cyan.opacity(0.5), appear ? .mint.opacity(0.5) : .blue.opacity(0.5), appear ? .red.opacity(0.5) : .blue.opacity(0.5)
-                ]
-            )
-            .ignoresSafeArea()
-            .onAppear {
-                withAnimation(.easeInOut(duration: 10).repeatForever(autoreverses: true)) {
-                    appear.toggle()
-                }
-                withAnimation(.easeInOut(duration: 15).repeatForever(autoreverses: true)) {
-                    appear2.toggle()
-                }
-            }
-
             VStack {
                 Text("Edit Panel")
                     .font(.largeTitle)
@@ -69,16 +45,32 @@ struct EditPatnel: View {
                                 HStack {
                                     Text("\(selectedFilterName)")
                                     Picker("Филтър", selection: $selectedFilterName) {
+                                        Text("None").tag("None") // Default
                                         Text("Sepia").tag("Sepia")
                                         Text("Monochrome").tag("Monochrome")
                                         Text("Invert").tag("Invert")
                                         Text("Vignette").tag("Vignette")
+                                        Text("Comic").tag("Comic")
+                                        Text("Crystallize").tag("Crystallize")
+                                        Text("Pointillize").tag("Pointillize")
+                                        Text("Bloom").tag("Bloom")
+                                        Text("Gloom").tag("Gloom")
+                                        Text("Pixellate").tag("Pixellate")
+                                        Text("Thermal").tag("Thermal")
+                                        Text("X-Ray").tag("X-Ray")
+                                        Text("Posterize").tag("Posterize")
+                                        Text("Dot Screen").tag("Dot Screen")
+                                        Text("Line Overlay").tag("Line Overlay")
+                                        Text("Gaussian Blur").tag("Gaussian Blur")
+                                        Text("Sharpen").tag("Sharpen")
+                                        Text("Edges").tag("Edges")
+                                        Text("Hexagonal Pixellate").tag("Hexagonal Pixellate")
                                     }
                                     .pickerStyle(MenuPickerStyle())
                                     .frame(width: 250)
                                     .onChange(of: selectedFilterName) {
                                         updateFilter(for: $0)
-                                        applyFilterToImage() // Приложи новия филтър
+                                        applyFilterToImage() // Apply filter
                                     }
                                 }
                                 
@@ -106,10 +98,10 @@ struct EditPatnel: View {
                     .fill(cviat)
                     .frame(width: 350, height: 350)
                     .overlay(
-                        Image(uiImage: filteredImage ?? patern.getPhotos[0]) // Показване на филтрираното изображение или оригинала
+                        Image(uiImage: filteredImage ?? patern.getPhotos[0])
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 350 - CGFloat(ramkiWidth * 10), height: 350 - CGFloat(ramkiWidth * 10), alignment: .topLeading)
+                            .frame(width: 350 - CGFloat(ramkiWidth * 10), height: 350 - CGFloat(ramkiWidth * 10))
                             .clipped()
                     )
             }
@@ -118,6 +110,8 @@ struct EditPatnel: View {
 
     private func updateFilter(for filterName: String) {
         switch filterName {
+        case "None":
+            selectedFilter = nil
         case "Sepia":
             selectedFilter = CIFilter.sepiaTone()
         case "Monochrome":
@@ -126,16 +120,49 @@ struct EditPatnel: View {
             selectedFilter = CIFilter.colorInvert()
         case "Vignette":
             selectedFilter = CIFilter.vignette()
+        case "Comic":
+            selectedFilter = CIFilter.comicEffect()
+        case "Crystallize":
+            selectedFilter = CIFilter.crystallize()
+        case "Pointillize":
+            selectedFilter = CIFilter.pointillize()
+        case "Bloom":
+            selectedFilter = CIFilter.bloom()
+        case "Gloom":
+            selectedFilter = CIFilter.gloom()
+        case "Pixellate":
+            selectedFilter = CIFilter.pixellate()
+        case "Thermal":
+            selectedFilter = CIFilter.thermal()
+        case "X-Ray":
+            selectedFilter = CIFilter.xRay()
+        case "Posterize":
+            selectedFilter = CIFilter.colorPosterize()
+        case "Dot Screen":
+            selectedFilter = CIFilter.dotScreen()
+        case "Line Overlay":
+            selectedFilter = CIFilter.lineOverlay()
+        case "Gaussian Blur":
+            selectedFilter = CIFilter.gaussianBlur()
+        case "Sharpen":
+            selectedFilter = CIFilter.sharpenLuminance()
+        case "Edges":
+            selectedFilter = CIFilter.edges()
+        case "Hexagonal Pixellate":
+            selectedFilter = CIFilter.hexagonalPixellate()
         default:
-            selectedFilter = CIFilter.sepiaTone()
+            selectedFilter = nil
         }
     }
     
     private func applyFilterToImage() {
         guard let originalImage = patern.getPhotos.first else { return }
         
-        // Приложи филтъра върху изображението
-        filteredImage = applyFilter(uiImage: originalImage, filter: selectedFilter)
+        if let filter = selectedFilter {
+            filteredImage = applyFilter(uiImage: originalImage, filter: filter)
+        } else {
+            filteredImage = originalImage
+        }
     }
 
     private func applyFilter(uiImage: UIImage, filter: CIFilter) -> UIImage? {
@@ -143,17 +170,15 @@ struct EditPatnel: View {
         
         filter.setValue(ciImage, forKey: kCIInputImageKey)
         
-        // Прилагане на филтъра
         guard let outputImage = filter.outputImage else {
-            return uiImage // Ако не се получи резултат, връщаме оригиналното изображение
+            return uiImage
         }
         
-        // Конвертиране на CIImage обратно в UIImage
         let context = CIContext()
         if let cgImage = context.createCGImage(outputImage, from: outputImage.extent) {
             return UIImage(cgImage: cgImage)
         }
         
-        return uiImage // В случай на грешка
+        return uiImage
     }
 }
