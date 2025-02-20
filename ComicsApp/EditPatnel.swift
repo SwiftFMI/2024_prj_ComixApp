@@ -28,6 +28,8 @@ struct EditPatnel: View {//patnel=panel :(, greshka v burzaneto
     
     @State var appear = false
     @State var appear2 = false
+    @State var ramkiWidth: Int = 2
+    @State var cviat: Color = .white
     
 
         var body: some View {
@@ -62,20 +64,45 @@ struct EditPatnel: View {//patnel=panel :(, greshka v burzaneto
                     Text("Edit Panel")
                         .font(.largeTitle)
                         .foregroundStyle(.white)
+                        
                     
                     
                     if !patern.getPhotos.isEmpty {
-                        
+                        RoundedRectangle(cornerRadius: 20).fill(.white.opacity(0.5)).frame(width: 350, height: 100)
+                            .overlay(
+                                VStack(alignment: .leading) {
+                                    Text("Рамка:")
+                                    HStack {
+                                        Text("Дебелина")
+                                        Image(systemName: "cat")
+                                        Slider(
+                                            value: Binding(
+                                                get: { Double(ramkiWidth) },
+                                                set: { ramkiWidth = Int($0) }
+                                            ),
+                                            in: 0...4,
+                                            step: 1
+                                        )
+                                        .frame(width: 120)
+                                        
+                                        HStack{Text("Цвят")
+                                            Image(systemName: "paintpalette")
+                                            ColorPicker("", selection: $cviat)
+                                        }
+                                    }
+                                }
+                            )
+                    }
                         
                         Rectangle()
-                          .fill(.white)
+                            .fill(cviat)
                           .frame(width: 350, height: 350).overlay(
                             
                             Image(uiImage: patern.getPhotos[0])
                                 .resizable()
                                         .aspectRatio(contentMode: .fill)
-                                        .frame(width: 340, height: 340, alignment: .topLeading)
-                                        .border(.blue)
+                                        .frame(width: 350-CGFloat((ramkiWidth*10)), height: 350-CGFloat((ramkiWidth*10)), alignment: .topLeading)
+                                        //.border(.blue)
                                         .clipped()
                             )
                         }
@@ -87,5 +114,5 @@ struct EditPatnel: View {//patnel=panel :(, greshka v burzaneto
                     
                 }
             }
-        }
+        
 //navigation spkit view za podobriavane na dizaina? ne, uf

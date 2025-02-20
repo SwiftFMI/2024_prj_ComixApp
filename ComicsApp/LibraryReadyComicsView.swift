@@ -76,9 +76,9 @@ struct LibraryReadyComicsView: View {
                                 Text("Изберете снимки")
                             }
                         }
-                        .onChange(of: snimki) { newItems in
+                        .onChange(of: snimki) {
                             selectedImages.removeAll()
-                            for item in newItems {
+                            for item in snimki {
                                 item.loadTransferable(type: Data.self) { result in
                                     switch result {
                                     case .success(let data):
