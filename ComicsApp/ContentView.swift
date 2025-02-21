@@ -13,7 +13,7 @@ struct ContentView: View {
     NavigationStack {
       VStack {
         RoundedRectangle(cornerRadius: 15)
-          .fill(LinearGradient(gradient: Gradient(colors: [Color.black.opacity(0.7), Color.indigo.opacity(0.9), Color.cyan]), startPoint: .topLeading, endPoint: .bottomLeading))
+          .fill(LinearGradient(gradient: Gradient(colors: [Color.black.opacity(0.9), Color.indigo.opacity(1), Color.cyan]), startPoint: .topLeading, endPoint: .bottomLeading))
           .ignoresSafeArea().overlay(
             VStack{
               Text("ComixApp").foregroundColor(.white).font(.custom("COPPERPLATE", size: 50)).offset(y: -45)

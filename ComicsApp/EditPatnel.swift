@@ -3,9 +3,7 @@ import PhotosUI
 import CoreImage
 import CoreImage.CIFilterBuiltins
 
-//Kodut za gradientite ot tuk:
-
-
+  //Kodut za gradientite ot tuk:
   //https://www.youtube.com/watch?v=_lsnGyF2WZg
 
 struct EditPatnel: View {
@@ -27,96 +25,49 @@ struct EditPatnel: View {
     @State private var selectedFilterName: String = "None"
     @State private var selectedFilter: CIFilter?
     @State private var filteredImage: UIImage?
+    
+    @State var scalePhoto: CGFloat = 1.0
 
-    // State to hold the image as a Binding
     @State private var imageToEdit: Image
 
     init(snimchici: [UIImage], count: Int) {
         self.snimchici = snimchici
         self.count = count
         self.patern = ComicsPatern(count: count, originals: snimchici)
-        // Initialize imageToEdit with the first image from patern.getPhotos
         _imageToEdit = State(initialValue: Image(uiImage: snimchici.first ?? UIImage()))
     }
 
     var body: some View {
         ZStack {
-
-
                   MeshGradient(
-
-
                       width: 3, height: 3,
-
-
                       points: [
-
-
                           [0.0, 0.0], [appear2 ? 0.5 : 1.0, 0.0], [1.0, 0.0],
-
-
                           [0.0, 0.5], appear ? [0.1, 0.5] : [0.8, 0.2], [1.0, -0.5],
-
-
                           [0.0, 1.0], [1.0, appear2 ? 1.5 : 1.0], [1.0, 1.0]
-
-
                       ],
-
-
                       colors: [
-
-
-                          appear2 ? .red.opacity(0.5) : .mint.opacity(0.5), appear2 ? .yellow.opacity(0.5) : .cyan.opacity(0.5),
-
-
-                          .orange,
-
-
+                          appear2 ? .red.opacity(0.5) : .mint.opacity(0.5), appear2 ? .yellow.opacity(0.5) : .cyan.opacity(0.5),.orange,
                           appear ? .blue.opacity(0.5) : .red.opacity(0.5), appear ? .cyan.opacity(0.5) : .white.opacity(0.5), appear ? .red.opacity(0.5) : .purple.opacity(0.5),
-
-
                           appear ? .red.opacity(0.5): .cyan.opacity(0.5), appear ? .mint.opacity(0.5) : .blue.opacity(0.5), appear ? .red.opacity(0.5) : .blue.opacity(0.5)
-
-
                       ]
-
-
                   )
-
-
                   .ignoresSafeArea()
-
-
                   .onAppear {
-
-
                       withAnimation(.easeInOut(duration: 10).repeatForever(autoreverses: true)) {
-
-
                           appear.toggle()
-
-
                       }
-
-
                       withAnimation(.easeInOut(duration: 15).repeatForever(autoreverses: true)) {
-
-
                           appear2.toggle()
-
                       }
-
-
                   }
             VStack {
                 HStack{
                     Text("Edit Panel")
                         .font(.largeTitle)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.white).offset(y: -50)
 
                     NavigationLink {
-                        // Pass the Binding of the image
                         EditBubbles(image: $imageToEdit)
                     }
                     label: {
@@ -133,9 +84,27 @@ struct EditPatnel: View {
                 if !patern.getPhotos.isEmpty {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(.white.opacity(0.5))
-                        .frame(width: 350, height: 100)
+                        .frame(width: 350, height: 300)
                         .overlay(
                             VStack(alignment: .leading) {
+                                HStack{
+                                    if scalePhoto>0.4{
+                                        Image(systemName: "minus.circle").font(.system(size: 40)).gesture(
+                                            TapGesture().onEnded{ _ in scalePhoto -= 0.1}
+                                        )
+                                    }
+                                    else{
+                                        Image(systemName: "minus.circle").foregroundColor(.gray).font(.system(size: 40))
+                                    }
+                                    if scalePhoto<1.6{
+                                        Image(systemName: "plus.circle").font(.system(size: 40)).gesture(
+                                            TapGesture().onEnded{ _ in scalePhoto += 0.1}
+                                        )
+                                    }
+                                    else{
+                                        Image(systemName: "plus.circle").foregroundColor(.gray).font(.system(size: 40))
+                                    }
+                                }
                                 HStack {
                                     Text("\(selectedFilterName)")
                                     Picker("Филтър", selection: $selectedFilterName) {
@@ -188,16 +157,20 @@ struct EditPatnel: View {
                         )
                 }
                 
+                Spacer()
+                
                 Rectangle()
                     .fill(cviat)
                     .frame(width: 350, height: 350)
                     .overlay(
                         Image(uiImage: filteredImage ?? patern.getPhotos[0])
                             .resizable()
+                            .scaleEffect(scalePhoto)
                             .aspectRatio(contentMode: .fill)
                             .frame(width: 350 - CGFloat(ramkiWidth * 10), height: 350 - CGFloat(ramkiWidth * 10))
                             .clipped()
-                    )
+                            .foregroundColor(.gray)
+                                                )
             }
         }
     }
