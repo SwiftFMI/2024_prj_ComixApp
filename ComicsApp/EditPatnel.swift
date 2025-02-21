@@ -6,10 +6,29 @@ import CoreImage.CIFilterBuiltins
   //Kodut za gradientite ot tuk:
   //https://www.youtube.com/watch?v=_lsnGyF2WZg
 
+//kod za render
+//https://www.hackingwithswift.com/quick-start/swiftui/how-to-convert-a-swiftui-view-to-an-image
+
+class Bubble: Identifiable {
+    let id = UUID()
+    var text: String
+    var positionX: Int = 0
+    var positionY: Int = 0
+    var scale: CGFloat
+    
+    init(text: String, positionX: Int, positionY: Int, scale: CGFloat) {
+        self.text = text
+        self.positionX = positionX
+        self.positionY = positionY
+        self.scale = scale
+    }
+}
+
 struct EditPatnel: View {
     var snimchici: [UIImage]
     var count: Int
     let patern: ComicsPatern
+    @State var zavursheni: [UIImage]
     
     @State var oformlenie: [[String]] = [
         ["По подразбиране"],
@@ -21,19 +40,36 @@ struct EditPatnel: View {
     @State var appear2 = false
     @State var ramkiWidth: Int = 2
     @State var cviat: Color = .white
+    @State var cviat2: Color = .red
     
     @State private var selectedFilterName: String = "None"
     @State private var selectedFilter: CIFilter?
     @State private var filteredImage: UIImage?
     
+    @State var degreesRotation: Double = 0
+    
     @State var scalePhoto: CGFloat = 1.0
+    
+    @State var bubbles: [Bubble] = []
+    @State private var text: String = ""
+    @State var positionX: CGFloat = 200
+    @State var positionY: CGFloat = 300
+    @State private var scale: CGFloat = 1.0
+    @State var havingBubble: Bool = false
+    @State var textRazmer: CGFloat = 16
 
     @State private var imageToEdit: Image
+    @State private var renderedImage: Image = Image(systemName: "photo")
+    @Environment(\.displayScale) var displayScale
+    
+    @State var creating: Bool
 
-    init(snimchici: [UIImage], count: Int) {
+    init(snimchici: [UIImage], count: Int, zavursheni: [UIImage], creating: Bool) {
         self.snimchici = snimchici
         self.count = count
         self.patern = ComicsPatern(count: count, originals: snimchici)
+        self.zavursheni = zavursheni
+        self.creating = creating
         _imageToEdit = State(initialValue: Image(uiImage: snimchici.first ?? UIImage()))
     }
 
@@ -63,50 +99,136 @@ struct EditPatnel: View {
                   }
             VStack {
                 HStack{
-                    Text("Edit Panel")
+                    /*Text("Edit Panel")
                         .font(.largeTitle)
                         .foregroundStyle(.white).offset(y: -50)
-
-                    NavigationLink {
-                        EditBubbles(image: $imageToEdit)
+                    */
+                    
+                    /*NavigationLink {
+                        EditBubbles(bubbles: bubbles, image: imageToEdit)
                     }
                     label: {
-                        Image(systemName:"bubble.circle").foregroundColor(.teal).font(.system(size: 20))
+                        Text("Добави балонче")
+                    }
+                    .padding()*/
+                    
+
+                    
+                }
+                .frame(width: 250)
+                
+                HStack {
+                    Button(action: {
+                        renderAndSaveImage()
+                    }) {
+                        Text("Запази в галерията")
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
                     }
                     .padding()
-                    .background(Color.clear)
-                    .border(Color.teal, width: 4)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .padding(20)
-
-                   
+                    
+                    ShareLink("Сподели", item: renderedImage, preview: SharePreview(Text("Споделена снимка"), image: renderedImage))
+                    .padding()}
+                
+                
+                Button("cLICK TO SAVE IMAGE") {
+                    guard let image = ImageRenderer(content: specialen2).uiImage else { return }
+                    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
                 }
+                
+                Button("Save to app comics") {
+                    guard let image = ImageRenderer(content: specialen2).uiImage else {
+                        print("ugh")
+                        return
+                    }
+
+                    // Преобразуваме UIImage в Data
+                    guard let imageData = image.jpegData(compressionQuality: 1.0) else {
+                        print("ugh")
+                        return
+                    }
+
+                    let fileManager = FileManager.default
+                    let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
+                    let imagePath = documentsDirectory.appendingPathComponent("comicImage.jpg")
+
+                    do {
+                        try imageData.write(to: imagePath)
+                        print("Изображението беше успешно записано на път: \(imagePath)")
+                    } catch {
+                        print("Грешка при записване на изображението: \(error)")
+                    }
+                    
+                    zavursheni.append(image)  // Appending UIImage instead of String
+                    creating = false
+                }
+                
                 if !patern.getPhotos.isEmpty {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(.white.opacity(0.5))
                         .frame(width: 350, height: 300)
                         .overlay(
-                            VStack(alignment: .leading) {
+                            VStack() {
                                 HStack{
+                                    Text("Балонче?")
+                                    Image(systemName: "bubble.left").font(.system(size: 35)).gesture(
+                                        TapGesture().onEnded{ _ in havingBubble=true}
+                                    )
+                                    if textRazmer>6{
+                                        Image(systemName: "minus.circle").font(.system(size: 25)).gesture(
+                                            TapGesture().onEnded{ _ in textRazmer -= 2}
+                                        )
+                                    }
+                                    else{
+                                        Image(systemName: "minus.circle").foregroundColor(.gray).font(.system(size: 25))
+                                    }
+                                    if scalePhoto<20{
+                                        Image(systemName: "plus.circle").font(.system(size: 25)).gesture(
+                                            TapGesture().onEnded{ _ in textRazmer += 2}
+                                        )
+                                    }
+                                    else{
+                                        Image(systemName: "plus.circle").foregroundColor(.gray).font(.system(size: 25))
+                                    }
+                                }
+                                HStack{
+                                    Text("Мащабиране")
+                                    Image(systemName: "plus.slash.minus")
                                     if scalePhoto>0.4{
-                                        Image(systemName: "minus.circle").font(.system(size: 40)).gesture(
+                                        Image(systemName: "minus.circle").font(.system(size: 35)).gesture(
                                             TapGesture().onEnded{ _ in scalePhoto -= 0.1}
                                         )
                                     }
                                     else{
-                                        Image(systemName: "minus.circle").foregroundColor(.gray).font(.system(size: 40))
+                                        Image(systemName: "minus.circle").foregroundColor(.gray).font(.system(size: 35))
                                     }
-                                    if scalePhoto<1.6{
-                                        Image(systemName: "plus.circle").font(.system(size: 40)).gesture(
+                                    if scalePhoto<1.3{
+                                        Image(systemName: "plus.circle").font(.system(size: 35)).gesture(
                                             TapGesture().onEnded{ _ in scalePhoto += 0.1}
                                         )
                                     }
                                     else{
-                                        Image(systemName: "plus.circle").foregroundColor(.gray).font(.system(size: 40))
+                                        Image(systemName: "plus.circle").foregroundColor(.gray).font(.system(size: 35))
                                     }
-                                }
+                                    
+                                    
+                                    Image(systemName: "arrow.trianglehead.clockwise.rotate.90").font(.system(size: 35)).gesture(
+                                        TapGesture().onEnded{ _ in degreesRotation -= 10}
+                                    )
+                                    
+                                    Image(systemName: "arrow.trianglehead.counterclockwise.rotate.90").font(.system(size: 35)).gesture(
+                                        TapGesture().onEnded{ _ in degreesRotation += 10}
+                                    )
+                                    
+                                    
+                                }.padding(.horizontal)
+                                
                                 HStack {
-                                    Text("\(selectedFilterName)")
+                                    Text("Филтър")
+                                        .frame(width: 60).offset(x:20)
+                                    Image(systemName: "photo.artframe.circle").font(.system(size: 25)).offset(x:20)
                                     Picker("Филтър", selection: $selectedFilterName) {
                                         Text("None").tag("None")
                                         Text("Sepia").tag("Sepia")
@@ -135,44 +257,65 @@ struct EditPatnel: View {
                                         updateFilter(for: $0)
                                         applyFilterToImage()
                                     }
-                                }
+                                }.padding(.horizontal)
                                 
                                 HStack {
-                                    Text("Дебелина рамка")
-                                    Image(systemName: "text.line.first.and.arrowtriangle.forward")
-                                    Spacer()
-                                    Slider(
-                                        value: Binding(
-                                            get: { Double(ramkiWidth) },
-                                            set: { ramkiWidth = Int($0) }
-                                        ),
-                                        in: 0...4,
-                                        step: 1
-                                    )
-                                    Image(systemName: "paintpalette")
-                                    ColorPicker("Цвят", selection: $cviat)
+                                    VStack{
+                                        Text("Дебелина рамка")
+                                        HStack{
+                                            Image(systemName: "text.line.first.and.arrowtriangle.forward").offset(x:20)
+                                            Spacer()
+                                            Slider(
+                                                value: Binding(
+                                                    get: { Double(ramkiWidth) },
+                                                    set: { ramkiWidth = Int($0) }
+                                                ),
+                                                in: 0...4,
+                                                step: 1
+                                            ).offset(x:20)
+                                        }
+                                    }
+                                    
+                                    VStack{
+                                        HStack{
+                                            Image(systemName: "paintpalette")
+                                            Text("Цвят рамка")
+                                        }
+                                        HStack{
+                                            ColorPicker("", selection: $cviat).offset(x:-20)
+                                        }
+                                    }
+                                    
+                                    VStack{
+                                        HStack{
+                                            Image(systemName: "paintpalette")
+                                            Text("Цвят фoн")
+                                        }
+                                        HStack{
+                                            ColorPicker("", selection: $cviat2).offset(x:-30)
+                                        }
+                                    }
+                                    
                                 }
-                                .padding(.horizontal)
+                                
                             }
+                            
                         )
                 }
                 
                 Spacer()
                 
-                Rectangle()
-                    .fill(cviat)
-                    .frame(width: 350, height: 350)
-                    .overlay(
-                        Image(uiImage: filteredImage ?? patern.getPhotos[0])
-                            .resizable()
-                            .scaleEffect(scalePhoto)
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 350 - CGFloat(ramkiWidth * 10), height: 350 - CGFloat(ramkiWidth * 10))
-                            .clipped()
-                            .foregroundColor(.gray)
-                                                )
+                specialen2
+
+                
             }
+            
+
+            
+            
+            
         }
+        
     }
 
     private func updateFilter(for filterName: String) {
@@ -222,6 +365,93 @@ struct EditPatnel: View {
         }
     }
     
+    @MainActor func renderAndSaveImage() {
+        let imageView = createImageView()
+
+        // Convert the SwiftUI view to a UIImage
+        if let uiImage = convertSwiftUIViewToUIImage(view: AnyView(imageView)) {
+            // If the conversion was successful, update the rendered image state
+            renderedImage = Image(uiImage: uiImage)
+            
+            // Now save the image to the gallery
+            UIImageWriteToSavedPhotosAlbum(uiImage, nil, nil, nil)
+        } else {
+            print("Failed to render image")
+        }
+    }
+    
+    func convertSwiftUIViewToUIImage(view: AnyView) -> UIImage? {
+        let hostingController = UIHostingController(rootView: view)
+        let viewSize = hostingController.view.intrinsicContentSize
+
+        // Ensure we use the right size
+        hostingController.view.frame = CGRect(origin: .zero, size: viewSize)
+        let renderer = UIGraphicsImageRenderer(size: viewSize)
+
+        let image = renderer.image { _ in
+            hostingController.view.drawHierarchy(in: hostingController.view.bounds, afterScreenUpdates: true)
+        }
+        
+        return image
+    }
+
+    func createImageView() -> some View {
+        ZStack{
+            
+            VStack{
+                Rectangle()
+                    .fill(cviat)
+                    .frame(width: 350, height: 350)
+                    .overlay(
+                        Rectangle().fill(cviat2).frame(width: 350 - CGFloat(ramkiWidth * 10), height: 350 - CGFloat(ramkiWidth * 10)).overlay(
+                            Image(uiImage: filteredImage ?? patern.getPhotos[0])
+                                .resizable()
+                                .scaleEffect(scalePhoto)
+                                .aspectRatio(contentMode: .fill)
+                                .rotation3DEffect(.degrees(degreesRotation),axis: (x: 0.0, y: 0.0, z: 1.0))
+                            //.rotation3DEffect(.degrees(degreesRotation),axis: (x: 1.0, y: 0.0, z: 0.0))
+                                .frame(width: 350 - CGFloat(ramkiWidth * 10), height: 350 - CGFloat(ramkiWidth * 10))
+                                .clipped()
+                        )
+                    )
+            }.position(x: UIScreen.main.bounds.width/2,y:200)
+            
+            if havingBubble{
+                VStack{
+                    SpeechBubble()
+                        .fill(Color.white)
+                        .frame(width: max(120, getTextWidth() * scale), height: max(70, getTextHeight() * scale))
+                    //.frame(width: text.size(withAttributes: [.font: UIFont.preferredFont(forTextStyle: textRazmer)]).width + 40, height: max(70, getTextHeight() * scale))
+                        .overlay(
+                            TextField("(реплика)...", text: $text)
+                                .font(.system(size: textRazmer))
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(.black)
+                                .padding()
+                                .frame(width: max(150, getTextWidth() * scale))
+                        )
+                        .shadow(radius: 5)
+                        .position(x: positionX, y: positionY)
+                    
+                        .gesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    self.positionX = value.location.x
+                                    self.positionY = value.location.y
+                                }
+                        )
+                        .gesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    self.scale = value
+                                }
+                        )
+                }.position(x: UIScreen.main.bounds.width/2,y:100)
+                
+            }
+        }
+    }
+    
     private func applyFilterToImage() {
         guard let originalImage = patern.getPhotos.first else { return }
         
@@ -247,5 +477,70 @@ struct EditPatnel: View {
         }
         
         return uiImage
+    }
+    
+    private func getTextWidth() -> CGFloat {
+            return text.size(withAttributes: [.font: UIFont.systemFont(ofSize: textRazmer)]).width+40
+        }
+
+    private func getTextHeight() -> CGFloat {
+        return text.size(withAttributes: [.font: UIFont.systemFont(ofSize: textRazmer)]).height
+    }
+    
+    var specialen2: some View{
+        ZStack{
+            
+            VStack{
+                Rectangle()
+                    .fill(cviat)
+                    .frame(width: 350, height: 350)
+                    .overlay(
+                        Rectangle().fill(cviat2).frame(width: 350 - CGFloat(ramkiWidth * 10), height: 350 - CGFloat(ramkiWidth * 10)).overlay(
+                            Image(uiImage: filteredImage ?? patern.getPhotos[0])
+                                .resizable()
+                                .scaleEffect(scalePhoto)
+                                .aspectRatio(contentMode: .fill)
+                                .rotation3DEffect(.degrees(degreesRotation),axis: (x: 0.0, y: 0.0, z: 1.0))
+                            //.rotation3DEffect(.degrees(degreesRotation),axis: (x: 1.0, y: 0.0, z: 0.0))
+                                .frame(width: 350 - CGFloat(ramkiWidth * 10), height: 350 - CGFloat(ramkiWidth * 10))
+                                .clipped()
+                        )
+                    )
+            }.position(x: UIScreen.main.bounds.width/2,y:200)
+            
+            if havingBubble{
+                VStack{
+                    SpeechBubble()
+                        .fill(Color.white)
+                        .frame(width: max(120, getTextWidth() * scale), height: max(70, getTextHeight() * scale))
+                    //.frame(width: text.size(withAttributes: [.font: UIFont.preferredFont(forTextStyle: textRazmer)]).width + 40, height: max(70, getTextHeight() * scale))
+                        .overlay(
+                            TextField("(реплика)...", text: $text)
+                                .font(.system(size: textRazmer))
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(.black)
+                                .padding()
+                                .frame(width: max(150, getTextWidth() * scale))
+                        )
+                        .shadow(radius: 5)
+                        .position(x: positionX, y: positionY)
+                    
+                        .gesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    self.positionX = value.location.x
+                                    self.positionY = value.location.y
+                                }
+                        )
+                        .gesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    self.scale = value
+                                }
+                        )
+                }.position(x: UIScreen.main.bounds.width/2,y:100)
+                
+            }
+        }
     }
 }

@@ -2,7 +2,7 @@ import SwiftUI
 import PhotosUI
 
 struct LibraryReadyComicsView: View {
-    @State var zavursheni: [String] = []
+    @State var zavursheni: [UIImage] = []
     @State var creating: Bool = false
     @State var countSnimki = 1
     @State var snimki: [PhotosPickerItem] = []
@@ -93,17 +93,21 @@ struct LibraryReadyComicsView: View {
                         }
                     
                     //Text("Избрани снимки: \(snimki.count)").font(.subheadline)
+                    VStack{
+                        if snimki.count == countSnimki {
+                            NavigationLink {
+                                EditPatnel(snimchici: selectedImages, count: countSnimki, zavursheni: zavursheni, creating: creating)
+                            } label: {
+                                    Text("Към редактиране на панела")
+                                }
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
+                    }.onDisappear {
+                        creating = false}
                     
-                    if snimki.count == countSnimki {
-                        NavigationLink {
-                            EditPatnel(snimchici: selectedImages, count: countSnimki)
-                        } label: {
-                            Text("Към редактиране на панела")
-                        }.padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                    }
                 }
             }
             
