@@ -18,7 +18,7 @@ struct LibraryStickersView: View {
             .font(.title2)
             .padding()
         } else {
-          Text("Нападение с котки за щастие")
+          Text("Вашите стикери")
             .font(.title2)
             .padding()
         }

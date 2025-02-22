@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ContentView: View {
   var size1: CGFloat = 150
+
+    
     var body: some View {
     NavigationStack {
       VStack {
@@ -47,8 +49,9 @@ struct ContentView: View {
                       .border(Color.teal, width: 4)
                       .clipShape(RoundedRectangle(cornerRadius: 8))
                     Spacer()
-                    NavigationLink {
-                      Text("Kitties")
+                        NavigationLink {
+                        Text("Проектът е с учебна цел за курса Swift 2024/2025")
+                        Text("(tuk tribvashe da slojim snimki, no niama vreme)")
                     } label: {
                       Image(systemName: "cat").foregroundColor(.gray.opacity(0.3))
                       Image(systemName: "cat").foregroundColor(.green)
@@ -60,6 +63,8 @@ struct ContentView: View {
       }
     }
   }
+
+    
 }
 #Preview {
   ContentView()

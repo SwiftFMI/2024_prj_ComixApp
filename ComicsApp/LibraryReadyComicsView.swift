@@ -95,9 +95,10 @@ struct LibraryReadyComicsView: View {
                     //Text("Избрани снимки: \(snimki.count)").font(.subheadline)
                     VStack{
                         if snimki.count == countSnimki {
-                            NavigationLink {
-                                EditPatnel(snimchici: selectedImages, count: countSnimki, zavursheni: zavursheni, creating: creating)
-                            } label: {
+                            if countSnimki == 1{
+                                NavigationLink {
+                                    EditPatnel(snimchici: selectedImages, count: countSnimki, zavursheni: zavursheni, creating: creating)
+                                } label: {
                                     Text("Към редактиране на панела")
                                 }
                                 .padding()
@@ -105,6 +106,18 @@ struct LibraryReadyComicsView: View {
                                 .foregroundColor(.white)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
+                            if countSnimki == 2{
+                                NavigationLink {
+                                    EditPatnel2(snimchici: selectedImages, count: countSnimki, zavursheni: zavursheni, creating: creating)
+                                } label: {
+                                    Text("Към редактиране на панела")
+                                }
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
+                        }
                     }.onDisappear {
                         creating = false}
                     
